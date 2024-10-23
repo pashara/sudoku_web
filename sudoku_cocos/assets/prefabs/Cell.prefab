@@ -443,6 +443,79 @@
     "label": {
       "__id__": 13
     },
+    "bgSprite": {
+      "__id__": 5
+    },
+    "defaultBgColor": {
+      "__type__": "cc.Color",
+      "r": 236,
+      "g": 236,
+      "b": 236,
+      "a": 255
+    },
+    "defaultTextColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "lockedBgColor": {
+      "__type__": "cc.Color",
+      "r": 207,
+      "g": 207,
+      "b": 207,
+      "a": 255
+    },
+    "lockedTextColor": {
+      "__type__": "cc.Color",
+      "r": 85,
+      "g": 85,
+      "b": 85,
+      "a": 255
+    },
+    "selectedBgColor": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 247,
+      "b": 185,
+      "a": 255
+    },
+    "selectedTextColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "correctBgColor": {
+      "__type__": "cc.Color",
+      "r": 179,
+      "g": 255,
+      "b": 197,
+      "a": 255
+    },
+    "correctTextColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "wrongBgColor": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 192,
+      "b": 192,
+      "a": 255
+    },
+    "wrongTextColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
     "row": 0,
     "col": 0,
     "_id": ""

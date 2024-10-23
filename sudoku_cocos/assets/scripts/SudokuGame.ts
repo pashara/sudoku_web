@@ -1,36 +1,55 @@
-import { _decorator, Component, Node, Prefab, Label, instantiate, ToggleContainer } from 'cc';
+import {_decorator, Component, instantiate, Label, Node, Prefab, ToggleContainer} from 'cc';
 import SudokuCell from './SudokuCell';
-import { DifficultInfoProvider } from './DifficultInfoProvider';
+import {DifficultInfoProvider} from './DifficultInfoProvider';
+import {CellState} from "db://assets/scripts/CellState";
+import {NumbersController} from "db://assets/scripts/NumbersController";
 
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export default class SudokuGame extends Component {
-
+    
     @property(Label)
-    private label: Label = null; 
+    private label: Label = null;
+
+    @property(NumbersController)
+    private numbersController: NumbersController = null;
 
 
     @property(Prefab)
     private cellPrefab: Prefab = null;
 
     @property(ToggleContainer)
-    private difficultyDropdown: ToggleContainer = null;
-
-    
+    private difficultyDropdown: ToggleContainer = null;    
 
     @property(Node)
     private spawnRoot: Node = null;
 
 
-    private selectedValue: string = 'Easy';
+    @property([Array])
+    solution: number[][] = []; // Решение, полученное от сервера
 
+
+    
+    static instance: SudokuGame = null;
+    private selectedValue: string = 'Easy';
     private grid: SudokuCell[][] = [];
 
     onLoad() {
+
+        if (!SudokuGame.instance) {
+            SudokuGame.instance = this;
+        } else {
+            this.node.destroy();
+            return;
+        }
+
+
+        this.OnSelectCell(null);
         this.onToggleContainerChanged();
         this.createGrid();
+
 
         const eventHandler = new Component.EventHandler();
         eventHandler.target = this.node;
@@ -81,8 +100,7 @@ export default class SudokuGame extends Component {
             .then(response => response.json())
             .then(data => {
                 if (data.newboard && data.newboard.grids.length > 0) {
-                    const board = data.newboard.grids[0].value;
-                    this.initializeSudoku(board);
+                    this.initializeSudoku(data.newboard.grids[0]);
                 }
             })
             .catch(error => {
@@ -90,10 +108,14 @@ export default class SudokuGame extends Component {
             });
     }
 
-    private initializeSudoku(board: number[][]) {
+    private initializeSudoku(board: any) {
+
+        this.solution = board.solution;
+
+
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
-                const value = board[row][col];
+                const value = board.value[row][col];
                 this.grid[row][col].setValue(value);
                 if (value === 0) {
                     this.grid[row][col].setEditable(true);
@@ -101,6 +123,68 @@ export default class SudokuGame extends Component {
                     this.grid[row][col].setEditable(false);
                 }
             }
+        }
+    }
+
+
+
+
+
+    private selectedCell: SudokuCell = null;
+
+
+    public OnSelectCell(cell: SudokuCell) {
+
+        if (cell != null && this.selectedCell == cell)
+        {
+            this.selectedCell.Unselect();
+            this.selectedCell = null;
+            this.numbersController.Ready(false);
+            return;
+        }
+
+
+        if (this.selectedCell !== null)
+        {
+            this.selectedCell.Unselect();
+        }
+        this.selectedCell = null;
+
+
+
+        if (cell !== null && (cell.state == CellState.Idle || cell.state == CellState.Wrong))
+        {
+            this.selectedCell = cell;
+            cell.Select();
+
+            this.numbersController.Ready(true);
+        }
+        else
+        {
+            this.numbersController.Ready(false);
+        }
+    }
+
+    setValueAtCurrentCell(number: number) {
+        if (this.selectedCell === null)
+        {
+            return;
+        }
+
+
+        this.selectedCell.setValue(number);
+
+        const currentValue = number;
+        const neededValue = this.solution[this.selectedCell.row][this.selectedCell.col];
+
+        if (currentValue == neededValue)
+        {
+            this.selectedCell.MarkCorrect();
+            this.OnSelectCell(null);
+        }
+        else
+        {
+            this.selectedCell.MarkWrong();
         }
     }
 }
